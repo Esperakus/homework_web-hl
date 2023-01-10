@@ -1,0 +1,61 @@
+---
+# tasks file for postgresql
+
+  - name: percona repository
+    dnf:
+      name: https://repo.percona.com/yum/percona-release-latest.noarch.rpm
+      state: present
+      disable_gpg_check: true
+
+  - name: install percona repos
+    shell: |
+      percona-release enable-only pxc-80 release
+      percona-release enable tools release
+      dnf -qy module disable mysql
+
+  - name: install percona
+    dnf:
+      name: percona-xtradb-cluster
+      state: present
+      update_cache: true
+  
+  - name: install python mysql module
+    dnf:
+      name: python3-mysqlclient
+      state: present
+      update_cache: true
+
+  - name: mysql service start
+    service:
+      name: mysqld
+      state: started
+      enabled: yes
+  
+  - name: register temporary password
+    shell: |
+      grep 'temporary password' /var/log/mysqld.log | awk '{print $NF}'
+    register: password
+
+  - debug:
+      msg: "{{ password.stdout }}"
+  
+  - name: set fact mysql temp password
+    set_fact:
+      mysql_temp_password: "{{ password.stdout }}"
+  
+  - name: set root mysql password
+    shell: mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED BY '"{{ pxcrootpwd }}"'; FLUSH PRIVILEGES;" --connect-expired-password -uroot --password="{{ mysql_temp_password }}"
+
+  - name: set fact mysql root password
+    set_fact:
+      mysql_root_password: "{{ pxcrootpwd }}"
+
+  - name: stop mysqld service
+    service:
+      name: mysqld
+      state: stopped
+
+  - name: template my.cnf
+    template:
+      src: my.cnf
+      dest: /etc/my.cnf

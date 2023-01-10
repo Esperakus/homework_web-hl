@@ -9,7 +9,7 @@
 
   - name: template initiator name
     template:
-      src: ./templates/initiatorname.iscsi
+      src: initiatorname.iscsi
       dest: /etc/iscsi/initiatorname.iscsi
 
   - name: start iscsi

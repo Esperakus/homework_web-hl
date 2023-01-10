@@ -65,11 +65,11 @@ resource "yandex_compute_instance" "ansible" {
     destination = "/home/cloud-user/ansible.cfg"
   }
 
-  # provisioner "remote-exec" {
-  #   inline = [
-  #     "ansible-playbook -u cloud-user -i /home/cloud-user/ansible/hosts /home/cloud-user/ansible/playbooks/main.yml",
-  #   ]
-  # }
+  provisioner "remote-exec" {
+    inline = [
+      "ansible-playbook -u cloud-user -i /home/cloud-user/ansible/hosts /home/cloud-user/ansible/playbooks/main.yml",
+    ]
+  }
 
   depends_on = [
     yandex_compute_instance.nginx,

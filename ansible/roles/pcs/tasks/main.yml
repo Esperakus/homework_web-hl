@@ -22,11 +22,11 @@
     password: "{{ hacluster_password | password_hash('sha512') }}"
 
 - name: pcs auth
-  command: pcs host auth {{ groups['gfs_hosts']|join(' ') }} -u hacluster -p "{{ hacluster_password }}"
+  command: pcs host auth {{ groups['backend_hosts']|join(' ') }} -u hacluster -p "{{ hacluster_password }}"
   run_once: true
 
 - name: pcs cluster setup
-  command: pcs cluster setup gfs2_cluster {{ groups['gfs_hosts']|join(' ') }}
+  command: pcs cluster setup gfs2_cluster {{ groups['backend_hosts']|join(' ') }}
   run_once: true
 
 - name: pcs cluster start and enable
