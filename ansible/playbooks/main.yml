@@ -16,6 +16,7 @@
   roles:
     # - { role: backend, become: true }
     - { role: php-fpm, become: true }
+    - { role: wordpress, become: true }
     - { role: iscsi-target, become: true }
     - { role: pcs, become: true }
     - { role: gfs2, become: true }
