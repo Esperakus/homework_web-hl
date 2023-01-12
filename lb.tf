@@ -1,5 +1,5 @@
 resource "yandex_lb_target_group" "nginx" {
-  name = "nginx-workers-tadget"
+  name = "nginx-workers"
 
   target {
     subnet_id = yandex_vpc_subnet.subnet01.id

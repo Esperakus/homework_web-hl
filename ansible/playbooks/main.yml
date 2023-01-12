@@ -6,7 +6,7 @@
     
 - hosts: db_hosts
   roles:
-    - { role: mysqld, become: true }
+    - { role: postgresql, become: true }
 
 - hosts: iscsi_hosts
   roles:
@@ -14,9 +14,6 @@
 
 - hosts: backend_hosts
   roles:
-    # - { role: backend, become: true }
-    - { role: php-fpm, become: true }
-    - { role: wordpress, become: true }
     - { role: iscsi-target, become: true }
     - { role: pcs, become: true }
     - { role: gfs2, become: true }
@@ -63,9 +60,12 @@
         sleep 20
         pcs constraint colocation add shared_vg-clone with locking-clone
         sleep 20
-        pcs resource create shared_fs ocf:heartbeat:Filesystem device=/dev/vg_gfs2/lv_gfs2 directory=/srv/wordpress fstype=gfs2 options=noatime op monitor interval=10s on-fail=ignore --group shared_vg
+        pcs resource create shared_fs ocf:heartbeat:Filesystem device=/dev/vg_gfs2/lv_gfs2 directory=/srv/static fstype=gfs2 options=noatime op monitor interval=10s on-fail=ignore --group shared_vg
 
 - hosts: nginx_hosts
   roles: 
     - { role: nginx, become: true }
   
+- hosts: backend_hosts
+  roles:
+    - { role: backend, become: true }

@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"fmt"
 	"net/http"
-
 	"os"
 
 	_ "github.com/lib/pq"
@@ -21,9 +20,12 @@ const (
 func hello(w http.ResponseWriter, req *http.Request) {
 
 	name, err := os.Hostname()
-	if err != nil {
-		panic(err)
-	}
+	CheckError(err)
+
+	// buf, err := os.ReadFile("/srv/static/index.png")
+	// if err != nil {
+	// 	panic(err)
+	// }
 
 	//	fmt.Println("Run on ", name)
 
@@ -42,9 +44,14 @@ func hello(w http.ResponseWriter, req *http.Request) {
 		CheckError(err)
 
 		//fmt.Printf(w, "Database engine is ", version)
+		// w.WriteHeader(http.StatusOK)
+		// w.Header().Set("Content-Type", "application/octet-stream")
+		// w.Write(buf)
+		fmt.Fprintf(w, "\n")
 		fmt.Fprintf(w, name)
 		fmt.Fprintf(w, "\n")
 		fmt.Fprintf(w, db_version)
+		fmt.Fprintf(w, "\n")
 		db.Close()
 	}
 }
@@ -65,6 +72,13 @@ func CheckError(err error) {
 }
 
 func main() {
+
+
+	http.Handle("/image", http.StripPrefix("/image", http.FileServer(http.Dir("/srv/static/index.png"))))
+    // if err := http.ListenAndServe(":8080", nil); err != nil {
+    //     log.Fatal("ListenAndServe: ", err)
+    // }
+
 
 	http.HandleFunc("/", hello)
 	// http.HandleFunc("/headers", headers)
