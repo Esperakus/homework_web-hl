@@ -5,7 +5,7 @@ After=network.target
 [Service]
 Type=simple
 Restart=always
-ExecStart=/usr/bin/simple_http
+ExecStart=/usr/bin/web-server
 
 [Install]
 WantedBy=multi-user.target

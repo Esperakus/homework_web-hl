@@ -1,0 +1,89 @@
+package main
+
+import (
+	"database/sql"
+	"fmt"
+	"net/http"
+	"os"
+	
+	_ "github.com/lib/pq"
+)
+
+const (
+	host     = "db"
+	port     = 5432
+	user     = "test"
+	password = "test"
+	dbname   = "postgres"
+)
+
+func hello(w http.ResponseWriter, req *http.Request) {
+
+	name, err := os.Hostname()
+	CheckError(err)
+
+	// buf, err := os.ReadFile("/srv/static/index.png")
+	// if err != nil {
+	// 	panic(err)
+	// }
+
+	//	fmt.Println("Run on ", name)
+
+	psqlconn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
+	db, err := sql.Open("postgres", psqlconn)
+	CheckError(err)
+
+	rows, err := db.Query(`SELECT version();`)
+	CheckError(err)
+
+	defer db.Close()
+	for rows.Next() {
+		var db_version string
+
+		err = rows.Scan(&db_version)
+		CheckError(err)
+
+		//fmt.Printf(w, "Database engine is ", version)
+		// w.WriteHeader(http.StatusOK)
+		// w.Header().Set("Content-Type", "application/octet-stream")
+		// w.Write(buf)
+		fmt.Fprintf(w, "\n")
+		fmt.Fprintf(w, name)
+		fmt.Fprintf(w, "\n")
+		fmt.Fprintf(w, db_version)
+		fmt.Fprintf(w, "\n")
+		db.Close()
+	}
+}
+
+// func headers(w http.ResponseWriter, req *http.Request) {
+
+// 	for name, headers := range req.Header {
+// 		for _, h := range headers {
+// 			fmt.Fprintf(w, "%v: %v\n", name, h)
+// 		}
+// 	}
+// }
+
+func CheckError(err error) {
+	if err != nil {
+		panic(err)
+	}
+}
+
+func main() {
+
+
+	http.Handle("/image", http.StripPrefix("/image", http.FileServer(http.Dir("/srv/static/index.png"))))
+    // if err := http.ListenAndServe(":8080", nil); err != nil {
+    //     log.Fatal("ListenAndServe: ", err)
+    // }
+
+
+	http.HandleFunc("/", hello)
+	// http.HandleFunc("/headers", headers)
+
+	http.ListenAndServe(":8090", nil)
+
+	// CheckError(err)
+}

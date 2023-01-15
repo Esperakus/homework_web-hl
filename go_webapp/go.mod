@@ -1,4 +1,4 @@
-module simple_http
+module web-server
 
 go 1.19
 

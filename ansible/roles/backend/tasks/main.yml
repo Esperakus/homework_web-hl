@@ -7,11 +7,11 @@
       dest: /srv/static/index.png
       mode: 0644
     run_once: true
-    
+
   - name: copy http-server
     copy:
-      src: ../files/simple_http
-      dest: /usr/bin/simple_http
+      src: ../files/web-server
+      dest: /usr/bin/web-server
       mode: 0755
 
   - name: copy service file
