@@ -3,15 +3,15 @@ variable "zone" {
   default = "ru-central1-a"
 }
 
-variable "cloud_id" {
-  type    = string
-  default = ""
-}
+# variable "cloud_id" {
+#   type    = string
+#   default = ""
+# }
 
-variable "folder_id" {
-  type    = string
-  default = ""
-}
+# variable "folder_id" {
+#   type    = string
+#   default = ""
+# }
 
 variable "image_id" {
   type = string
@@ -19,7 +19,7 @@ variable "image_id" {
   default = "fd816jiq3n13qtli6fh3" #centos 8 stream
 }
 
-variable "yc_token" {
-  type    = string
-  default = ""
-}
+# variable "yc_token" {
+#   type    = string
+#   default = ""
+# }
