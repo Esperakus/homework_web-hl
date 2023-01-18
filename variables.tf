@@ -5,12 +5,12 @@ variable "zone" {
 
 variable "cloud_id" {
   type    = string
-  default = "b1goe3dambm08tdcqvcb"
+  default = ""
 }
 
 variable "folder_id" {
   type    = string
-  default = "b1g8orq0tmhvaddbqf99"
+  default = ""
 }
 
 variable "image_id" {
@@ -21,5 +21,5 @@ variable "image_id" {
 
 variable "yc_token" {
   type    = string
-  default = "t1.9euelZrOx5WdjIzJkY-Sxsebi43HlO3rnpWans6UkJTKnpuOjYvGjI6NyZLl8_dQQ2Fh-e8sIEhu_d3z9xByXmH57ywgSG79zef1656VmpySxpSMz8-YzpTNmMaJmZKZ7_0.LEd8ktroD2-2Bngom0KLiSQFE_D8COFYxnPP2LK7STpqSInFlI5jDFS33IJkgzaPNmDG9el3-wqC2RnWkcIBAA"
+  default = ""
 }
