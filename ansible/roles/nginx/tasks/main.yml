@@ -57,5 +57,5 @@
   - name: set sysctl fopen
     sysctl:
       name: fs.file-max
-      value: 262144
+      value: 324567
       sysctl_set: true

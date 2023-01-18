@@ -21,21 +21,24 @@
 - операционная система CentOS 8 Stream;
 
 Для разворачивания стенда необходимо:
-1. Инициализировать рабочую среду Terraform:
+
+1. Заполнить значение переменных cloud_id, folder_id и iam-token в файле **variables.tf**.
+
+2. Инициализировать рабочую среду Terraform:
 
 ```
 $ terraform init
 ```
 В результате будет установлен провайдер для подключения к облаку Яндекс.
 
-2. Запустить разворачивание стенда:
+3. Запустить разворачивание стенда:
 ```
 $ terraform apply
 ```
-В процессе разворачивания будут запрошены cloud_id, folder_id и iam-token. При желании эти значения можно задать соответсвующим переменным в variables.tf. В выходных данных будут показаны все внешние и внутренни ip адреса. Для проверки работы стенда необходимо в браузере или с помощью curl зайти на ip адрес балансировщика yandex.cloud, который можно посмотреть в выходных данных, например:
+В выходных данных будут показаны все внешние и внутренни ip адреса. Для проверки работы стенда необходимо в браузере или с помощью curl зайти на ip адрес балансировщика yandex.cloud, который можно посмотреть в выходных данных, например:
 
 ```
-вывод  terraform apply:
+Пример вывода terraform apply:
 
 ...
 external_ip_address_lb = tolist([
@@ -46,23 +49,25 @@ external_ip_address_lb = tolist([
         "ip_version" = "ipv4"
 ...
 ```
-заходим на ip балансировщика (можно в сочетании с watch, чтоб наглядно видеть смену бэкендов):
+заходим на ip балансировщика из браузера или с помощью curl (можно в сочетании с watch, чтоб наглядно видеть смену бэкендов):
 ```
-curl http://51.250.84.78
+curl http://{external_ip_address_lb}
 ```
 в выводе увидим:
 ```
 backend0.ru-central1.internal
-PostgreSQL 13.9 on x86_64-pc-linux-gnu, compiled by gcc (GCC) 8.5.0 20210514 (Red Hat 8.5.0-15), 64-bit
 ```
 или
 ```
 backend1.ru-central1.internal
-PostgreSQL 13.9 on x86_64-pc-linux-gnu, compiled by gcc (GCC) 8.5.0 20210514 (Red Hat 8.5.0-15), 64-bit
 ```
 что говорит о том, что запрос может перенаправляться Nginx на разные бэкенды.
 
 Ответ от БД можно посмотреть по url http://{external_ip_address_lb}/db
+```
+PostgreSQL 13.9 on x86_64-pc-linux-gnu, compiled by gcc (GCC) 8.5.0 20210514 (Red Hat 8.5.0-15), 64-bit
+```
+
 Вывод картинки с подключенной по iSCSI GFS2 можно увидеть по url http://{external_ip_address_lb}/image
 
 Можно зайти по ssh на джамп-хост, с которого можно попасть на любую ВМ внутри стенда. Для этого из рабочей папки проекта надо выполнить:
@@ -70,10 +75,27 @@ PostgreSQL 13.9 on x86_64-pc-linux-gnu, compiled by gcc (GCC) 8.5.0 20210514 (Re
 ```
 $ ssh cloud-user@{external_ip_address_ansible} -i id_rsa
 ```
-**external_ip_address_ansible** можно посмотреть в выводе terraform или консоли yandex.cloud.
+**external_ip_address_ansible** посмотреть в выводе terraform или консоли yandex.cloud.
 
 С джамп-хоста можно ходить по ssh по всем машинам внутри проекта по их внутренним ip адресам или hostname (nginx0, nginx1, backend0, backend1, db, iscsi).
 
 Если останавливать по одной службы nginx на балансировщиках nginx0, nginx1 можно увидеть, что запросы всё равно идут к бэкендам благодаря работе балансировщика yandex.cloud.
 
-Если останавливать по одной службы go_web.service на бэкендах backend0, backend1, можно увидеть, что запросы будут идти только на работающий бэкенд благодаря работе балансировки в nginx. Если запустить снова - оба бэкенда будут в работе спустя некоторое время.
+Если останавливать по одному backend0, backend1, можно увидеть, что запросы будут идти только на работающий бэкенд благодаря работе балансировки в nginx. Обработка статики (вывод картинки) также продолжит работать. Если запустить снова - оба бэкенда будут в работе спустя некоторое время. 
+
+"Тюнинг" Nginx.
+На серверах nginx выполнены следующие настройки для улучшения производительности:
+1. Настройки операционной системы:
+   - увеличение ulimits hard и soft для nginx до 65536
+   - увеличение sysctl fs.file-max до 324567
+2. Настройки nginx:
+   - sendfile on;
+   - tcp_nopush on;
+   - types_hash_max_size 2048;
+   - gzip on;
+   - gzip_disable "msie6";
+   - gzip_proxied any;
+   - gzip_comp_level 3;
+   - gzip_buffers 16 8k;
+   - gzip_http_version 1.1;
+   - gzip_types text/plain text/css application/json application/x-javascript text/xml application/xml application/xml+rss text/javascript application/javascript image/svg+xml;

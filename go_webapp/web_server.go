@@ -37,7 +37,7 @@ func getDB(w http.ResponseWriter, r *http.Request) {
 		err = rows.Scan(&db_version)
 		CheckError(err)
 
-		fmt.Fprintf(w, db_version)
+		io.WriteString(w, db_version)
 		db.Close()
 	}
 }
@@ -46,7 +46,7 @@ func getRoot(w http.ResponseWriter, r *http.Request) {
 	name, err := os.Hostname()
 	CheckError(err)
 
-	// fmt.Fprintf(w, name)
+	// fmt.Fprintf(w, n ame)
 	io.WriteString(w, name)
 
 	// io.WriteString(w, "This is my website!\n")
@@ -98,6 +98,8 @@ func main() {
 	http.HandleFunc("/db", getDB)
 	http.HandleFunc("/image", getImage)
 	http.HandleFunc("/all", getALL)
+
+	
 
 	http.ListenAndServe(":8090", nil)
 }
