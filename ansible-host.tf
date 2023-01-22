@@ -20,12 +20,12 @@ resource "yandex_compute_instance" "ansible" {
   }
 
   metadata = {
-    ssh-keys = "cloud-user:${tls_private_key.ssh.public_key_openssh}"
+    ssh-keys = "almalinux:${tls_private_key.ssh.public_key_openssh}"
   }
 
   connection {
     type        = "ssh"
-    user        = "cloud-user"
+    user        = "almalinux"
     private_key = tls_private_key.ssh.private_key_pem
     host        = self.network_interface.0.nat_ip_address
   }
@@ -41,33 +41,33 @@ resource "yandex_compute_instance" "ansible" {
 
   provisioner "file" {
     source      = "ansible"
-    destination = "/home/cloud-user"
+    destination = "/home/almalinux"
   }
 
   provisioner "file" {
     source      = "id_rsa"
-    destination = "/home/cloud-user/.ssh/id_rsa"
+    destination = "/home/almalinux/.ssh/id_rsa"
   }
 
   provisioner "file" {
     source      = "id_rsa.pub"
-    destination = "/home/cloud-user/.ssh/id_rsa.pub"
+    destination = "/home/almalinux/.ssh/id_rsa.pub"
   }
 
   provisioner "remote-exec" {
     inline = [
-      "chmod 600 /home/cloud-user/.ssh/id_rsa"
+      "chmod 600 /home/almalinux/.ssh/id_rsa"
     ]
   }
 
   provisioner "file" {
     source      = "./ansible/ansible.cfg"
-    destination = "/home/cloud-user/ansible.cfg"
+    destination = "/home/almalinux/ansible.cfg"
   }
 
   provisioner "remote-exec" {
     inline = [
-      "ansible-playbook -u cloud-user -i /home/cloud-user/ansible/hosts /home/cloud-user/ansible/playbooks/main.yml",
+      "ansible-playbook -u almalinux -i /home/almalinux/ansible/hosts /home/almalinux/ansible/playbooks/main.yml",
     ]
   }
 
